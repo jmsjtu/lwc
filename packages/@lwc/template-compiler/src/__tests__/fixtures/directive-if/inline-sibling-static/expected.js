@@ -17,7 +17,7 @@ function tmpl($api, $cmp, $slotset, $ctx) {
               [api_text("1")]
             )
           : null,
-        api_dynamic($cmp.foo),
+        api_text(api_dynamic($cmp.foo)),
         $cmp.isTrue
           ? api_element(
               "p",

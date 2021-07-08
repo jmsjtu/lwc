@@ -19,7 +19,7 @@ function tmpl($api, $cmp, $slotset, $ctx) {
           {
             key: api_key(1, item.id),
           },
-          [api_dynamic(index), api_text(" - "), api_dynamic(item)]
+          [api_text(api_dynamic(index) + " - " + api_dynamic(item))]
         );
       })
     ),

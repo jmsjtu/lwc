@@ -32,7 +32,7 @@ function tmpl($api, $cmp, $slotset, $ctx) {
             key: api_key(2, task.id),
           },
           [
-            api_dynamic(task.title),
+            api_text(api_dynamic(task.title)),
             api_element(
               "button",
               {

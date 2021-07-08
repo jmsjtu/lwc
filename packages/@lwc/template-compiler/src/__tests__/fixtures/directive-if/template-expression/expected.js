@@ -8,9 +8,9 @@ function tmpl($api, $cmp, $slotset, $ctx) {
         key: 0,
       },
       [
-        $cmp.state.isTrue ? api_dynamic($cmp.foo) : null,
-        $cmp.state.isTrue ? api_text(" ") : null,
-        $cmp.state.isTrue ? api_dynamic($cmp.bar) : null,
+        $cmp.state.isTrue
+          ? api_text(api_dynamic($cmp.foo) + " " + api_dynamic($cmp.bar))
+          : null,
       ]
     ),
   ];
