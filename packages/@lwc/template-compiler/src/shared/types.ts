@@ -99,7 +99,7 @@ export interface IRElement {
 
 export interface IRText {
     type: 'text';
-    value: string | TemplateExpression;
+    value: Array<string | TemplateExpression>;
 
     parent?: IRElement;
 

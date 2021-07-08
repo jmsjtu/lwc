@@ -31,7 +31,7 @@ export function createElement(original: HTMLElement, parent?: IRElement): IRElem
 export function createText(
     original: HTMLText,
     parent: IRElement,
-    value: string | TemplateExpression
+    value: Array<string | TemplateExpression>
 ): IRText {
     return {
         type: 'text',

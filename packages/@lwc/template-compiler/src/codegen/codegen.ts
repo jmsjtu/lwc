@@ -96,12 +96,27 @@ export default class CodeGen {
         ]);
     }
 
-    genText(value: string | t.Expression): t.Expression {
-        if (typeof value === 'string') {
-            return this._renderApiCall(RENDER_APIS.text, [t.literal(value)]);
-        } else {
-            return this._renderApiCall(RENDER_APIS.dynamic, [value]);
+    genText(value: Array<string | t.Expression>): t.Expression {
+        const mappedValues = value.map((v) => {
+            if (typeof v === 'string') {
+                return t.literal(v);
+            } else {
+                // Ideally it would be $cmp.v ?? '', and we could remove the api.d call.
+                // Keeping the api.d call instead of ($cmp.v == null ? '' : $cmp.v) for 2 reasons:
+                //    1. Avoid accessing 2 times the component property.
+                //    2. Increasing the component bundle size.
+                return this._renderApiCall(RENDER_APIS.dynamic, [v]);
+            }
+        });
+
+        let textConcatenation: t.BinaryExpression | t.SimpleLiteral | t.CallExpression =
+            mappedValues[0];
+
+        for (let i = 1, n = mappedValues.length; i < n; i++) {
+            textConcatenation = t.binaryExpression('+', textConcatenation, mappedValues[i]);
         }
+
+        return this._renderApiCall(RENDER_APIS.text, [textConcatenation]);
     }
 
     genComment(value: string): t.Expression {

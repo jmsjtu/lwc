@@ -109,7 +109,10 @@ function transform(root: IRElement, codeGen: CodeGen, state: State): t.Expressio
 
     function transformText(text: IRText): t.Expression {
         const { value } = text;
-        return codeGen.genText(typeof value === 'string' ? value : bindExpression(value, text));
+
+        return codeGen.genText(
+            value.map((v) => (typeof v === 'string' ? v : bindExpression(v, text)))
+        );
     }
 
     function transformComment(comment: IRComment): t.Expression {
