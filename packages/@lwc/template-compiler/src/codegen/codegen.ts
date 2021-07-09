@@ -17,7 +17,7 @@ type RenderPrimitive =
     | 'customElement'
     | 'bind'
     | 'text'
-    | 'dynamic'
+    | 'dynamicText'
     | 'dynamicCtor'
     | 'key'
     | 'tabindex'
@@ -39,7 +39,7 @@ const RENDER_APIS: { [primitive in RenderPrimitive]: RenderPrimitiveDefinition }
     dynamicCtor: { name: 'dc', alias: 'api_dynamic_component' },
     bind: { name: 'b', alias: 'api_bind' },
     text: { name: 't', alias: 'api_text' },
-    dynamic: { name: 'd', alias: 'api_dynamic' },
+    dynamicText: { name: 'd', alias: 'api_dynamic_text' },
     key: { name: 'k', alias: 'api_key' },
     tabindex: { name: 'ti', alias: 'api_tab_index' },
     scopedId: { name: 'gid', alias: 'api_scoped_id' },
@@ -98,19 +98,12 @@ export default class CodeGen {
 
     genText(value: Array<string | t.Expression>): t.Expression {
         const mappedValues = value.map((v) => {
-            if (typeof v === 'string') {
-                return t.literal(v);
-            } else {
-                // Ideally it would be $cmp.v ?? '', and we could remove the api.d call.
-                // Keeping the api.d call instead of ($cmp.v == null ? '' : $cmp.v) for 2 reasons:
-                //    1. Avoid accessing 2 times the component property.
-                //    2. Increasing the component bundle size.
-                return this._renderApiCall(RENDER_APIS.dynamic, [v]);
-            }
+            return typeof v === 'string'
+                ? t.literal(v)
+                : this._renderApiCall(RENDER_APIS.dynamicText, [v]);
         });
 
-        let textConcatenation: t.BinaryExpression | t.SimpleLiteral | t.CallExpression =
-            mappedValues[0];
+        let textConcatenation: t.Expression = mappedValues[0];
 
         for (let i = 1, n = mappedValues.length; i < n; i++) {
             textConcatenation = t.binaryExpression('+', textConcatenation, mappedValues[i]);
