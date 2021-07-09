@@ -39,7 +39,13 @@ import {
 } from './expression';
 
 import * as t from '../shared/estree';
-import { createComment, createElement, createText, isCustomElement } from '../shared/ir';
+import {
+    createComment,
+    createElement,
+    createInterpolatedText,
+    createText,
+    isCustomElement,
+} from '../shared/ir';
 import {
     ForEach,
     ForIterator,
@@ -48,6 +54,7 @@ import {
     IRComment,
     IRElement,
     IRExpressionAttribute,
+    IRInterpolatedText,
     IRNode,
     IRText,
     isLWCDirectiveRenderMode,
@@ -208,7 +215,10 @@ export default function parse(source: string, state: State): TemplateParseResult
         parent.children = parsedChildren;
     }
 
-    function parseText(node: parse5.AST.Default.TextNode, parent: IRElement): IRText | undefined {
+    function parseText(
+        node: parse5.AST.Default.TextNode,
+        parent: IRElement
+    ): IRText | IRInterpolatedText | undefined {
         const parsedTextParts: Array<string | TemplateExpression> = [];
 
         // Extract the raw source to avoid HTML entity decoding done by parse5
@@ -219,11 +229,11 @@ export default function parse(source: string, state: State): TemplateParseResult
             return;
         }
 
-        // Split the text node content arround expression and create node for each
+        // Split the text node content around expressions and create node for each
         const tokenizedContent = rawText.split(EXPRESSION_RE);
 
         for (const token of tokenizedContent) {
-            // Don't create nodes for emtpy strings
+            // Don't create nodes for empty strings
             if (!token.length) {
                 continue;
             }
@@ -243,7 +253,7 @@ export default function parse(source: string, state: State): TemplateParseResult
                         )
                     );
                     return parsedTextParts.length
-                        ? createText(node, parent, parsedTextParts)
+                        ? createInterpolatedText(node, parent, parsedTextParts)
                         : undefined;
                 }
             } else {
@@ -253,7 +263,9 @@ export default function parse(source: string, state: State): TemplateParseResult
             parsedTextParts.push(value);
         }
 
-        return createText(node, parent, parsedTextParts);
+        return parsedTextParts.length === 1
+            ? createText(node, parent, parsedTextParts[0])
+            : createInterpolatedText(node, parent, parsedTextParts);
     }
 
     function parseComment(node: parse5.AST.Default.CommentNode, parent: IRElement): IRComment {

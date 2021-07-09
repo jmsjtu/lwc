@@ -18,6 +18,7 @@ import {
     isTemplate,
     isTextNode,
     isSlot,
+    isInterpolatedTextNode,
 } from '../shared/ir';
 import { TEMPLATE_PARAMS, TEMPLATE_FUNCTION_NAME } from '../shared/constants';
 import {
@@ -27,6 +28,7 @@ import {
     IRAttribute,
     IRAttributeType,
     IRComment,
+    IRInterpolatedText,
 } from '../shared/types';
 
 import CodeGen from './codegen';
@@ -107,11 +109,11 @@ function transform(root: IRElement, codeGen: CodeGen, state: State): t.Expressio
         }
     }
 
-    function transformText(text: IRText): t.Expression {
-        const { value } = text;
+    function transformText(text: IRText | IRInterpolatedText): t.Expression {
+        const textValue = isTextNode(text) ? [text.value] : text.value;
 
         return codeGen.genText(
-            value.map((v) => (typeof v === 'string' ? v : bindExpression(v, text)))
+            textValue.map((v) => (typeof v === 'string' ? v : bindExpression(v, text)))
         );
     }
 
@@ -125,7 +127,7 @@ function transform(root: IRElement, codeGen: CodeGen, state: State): t.Expressio
 
             if (isElement(child)) {
                 expr = isTemplate(child) ? transformTemplate(child) : transformElement(child);
-            } else if (isTextNode(child)) {
+            } else if (isTextNode(child) || isInterpolatedTextNode(child)) {
                 expr = transformText(child);
             } else if (isCommentNode(child)) {
                 expr = transformComment(child);
