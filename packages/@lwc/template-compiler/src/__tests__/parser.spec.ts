@@ -35,7 +35,7 @@ describe('parsing', () => {
         const { root } = parseTemplate(`<template><h1>hello</h1></template>`);
         expect(root.tag).toBe('template');
         expect(root.children[0].tag).toBe('h1');
-        expect(root.children[0].children[0].value).toEqual(['hello']);
+        expect(root.children[0].children[0].value).toBe('hello');
     });
 
     it('html entities', () => {
@@ -43,8 +43,8 @@ describe('parsing', () => {
             <p>foo&amp;bar</p>
             <p>const &#123; foo &#125; = bar;</p>
         </template>`);
-        expect(root.children[0].children[0].value).toEqual(['foo&bar']);
-        expect(root.children[1].children[0].value).toEqual(['const { foo } = bar;']);
+        expect(root.children[0].children[0].value).toBe('foo&bar');
+        expect(root.children[1].children[0].value).toBe('const { foo } = bar;');
     });
 
     it('text identifier', () => {
@@ -65,7 +65,7 @@ describe('parsing', () => {
         const { root } = parseTemplate(`<template><ul><li>hello</li></ul></template>`);
         expect(root.children[0].tag).toBe('ul');
         expect(root.children[0].children[0].tag).toBe('li');
-        expect(root.children[0].children[0].children[0].value).toEqual(['hello']);
+        expect(root.children[0].children[0].children[0].value).toBe('hello');
         expect(root.children[0].parent).toBe(root);
     });
 });
